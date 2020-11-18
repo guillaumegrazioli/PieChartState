@@ -35,6 +35,59 @@ public class PercentagePieChart extends JComponent implements PercentageView {
 
 		// "Controller" behaviour : handle mouse input and update the percentage accordingly
 		MouseInputListener l = new MouseInputAdapter() {
+                    // State Objects
+    // 1) Pour chaque état on crée une classe interne anonyme qui étend State
+    // 2) On surcharge la ou les méthodes qu'on veut traiter
+    //            (ici mousePressed )
+    // 3) On crée une instance de cette classe anonyme
+                    private class AbstractState extends MouseInputAdapter {
+    };
+    private AbstractState IN_PIN = new AbstractState() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            currentState = ADJUSTING;
+            setCursor(CROSS);
+        }
+    };
+    private AbstractState ADJUSTING = new AbstractState() {
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            if (inPin(e)) {
+                    currentState = IN_PIN;
+                    setCursor(CROSS);
+            } else {
+                    currentState = INIT;
+                    setCursor(ARROW);
+            }
+        }
+        
+        // State variable
+        private AbstractState currentState = INIT;
+
+    // On délègue la gestion des événements à l'état courant
+    MouseInputAdapter eventHandler = new MouseInputAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            currentState.mousePressed(e);
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            currentState.mouseReleased(e);
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            currentState.mouseDragged(e);
+        }
+    };
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            moveLastPoint(e);
+        }
+    };
+
 			public void mousePressed(MouseEvent e) {
 				switch (myState) {
 					case INIT:
